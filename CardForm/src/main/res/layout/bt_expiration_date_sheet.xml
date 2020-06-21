@@ -15,7 +15,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_weight="7">
+        android:layout_weight="6">
 
         <TextView
             style="@style/bt_expiration_date_dialog_label"
@@ -38,7 +38,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_weight="3">
+        android:layout_weight="4">
 
         <TextView
             style="@style/bt_expiration_date_dialog_label"
