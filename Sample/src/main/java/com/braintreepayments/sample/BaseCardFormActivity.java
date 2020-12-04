@@ -1,10 +1,11 @@
 package com.braintreepayments.sample;
 
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.WindowManager;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.braintreepayments.cardform.OnCardFormSubmitListener;
 import com.braintreepayments.cardform.utils.CardType;
@@ -36,7 +37,7 @@ public class BaseCardFormActivity extends AppCompatActivity implements OnCardFor
                 .maskCardNumber(true)
                 .maskCvv(true)
                 .expirationRequired(true)
-                .cvvRequired(true)
+                .cvvRequiredStatus(CardForm.FIELD_OPTIONAL)
                 .postalCodeRequired(true)
                 .mobileNumberRequired(true)
                 .saveCardCheckBoxChecked(true)

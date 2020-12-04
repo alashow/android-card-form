@@ -6,10 +6,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build.VERSION_CODES;
-import androidx.annotation.DrawableRes;
-import androidx.annotation.IntDef;
-import com.google.android.material.textfield.TextInputEditText;
-
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
@@ -26,6 +22,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
+import androidx.annotation.DrawableRes;
+import androidx.annotation.IntDef;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.braintreepayments.cardform.CardScanningFragment;
 import com.braintreepayments.cardform.OnCardFormFieldFocusedListener;
 import com.braintreepayments.cardform.OnCardFormSubmitListener;
@@ -34,13 +34,13 @@ import com.braintreepayments.cardform.R;
 import com.braintreepayments.cardform.utils.CardType;
 import com.braintreepayments.cardform.utils.ViewUtils;
 import com.braintreepayments.cardform.view.CardEditText.OnCardTypeChangedListener;
+import com.google.android.material.textfield.TextInputEditText;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
 
-import androidx.appcompat.app.AppCompatActivity;
 import io.card.payment.CardIOActivity;
 import io.card.payment.CreditCard;
 
@@ -89,6 +89,7 @@ public class CardForm extends LinearLayout implements OnCardTypeChangedListener,
     private boolean mCardNumberRequired;
     private boolean mExpirationRequired;
     private boolean mCvvRequired;
+    private int mCvvRequiredStatus = FIELD_OPTIONAL;
     private int mCardholderNameStatus = FIELD_DISABLED;
     private boolean mPostalCodeRequired;
     private boolean mMobileNumberRequired;
@@ -179,7 +180,15 @@ public class CardForm extends LinearLayout implements OnCardTypeChangedListener,
      * @return {@link CardForm} for method chaining
      */
     public CardForm cvvRequired(boolean required) {
-        mCvvRequired = required;
+        return cvvRequiredStatus(FIELD_REQUIRED);
+    }
+
+    /**
+     * @param cvvRequiredStatus Defaults to {@code CardForm#FIELD_OPTIONAL}.
+     * @return {@link CardForm} for method chaining
+     */
+    public CardForm cvvRequiredStatus(@FieldStatus int cvvRequiredStatus) {
+        mCvvRequiredStatus = cvvRequiredStatus;
         return this;
     }
 
@@ -287,6 +296,7 @@ public class CardForm extends LinearLayout implements OnCardTypeChangedListener,
                 WindowManager.LayoutParams.FLAG_SECURE);
 
         boolean cardHolderNameVisible = mCardholderNameStatus != FIELD_DISABLED;
+        boolean cvvVisible = mCvvRequiredStatus != FIELD_DISABLED;
         boolean isDarkBackground = ViewUtils.isDarkBackground(activity);
         mCardholderNameIcon.setImageResource(isDarkBackground ? R.drawable.bt_ic_cardholder_name_dark: R.drawable.bt_ic_cardholder_name);
         mCardNumberIcon.setImageResource(isDarkBackground ? R.drawable.bt_ic_card_dark : R.drawable.bt_ic_card);
@@ -300,7 +310,7 @@ public class CardForm extends LinearLayout implements OnCardTypeChangedListener,
         setViewVisibility(mCardNumberIcon, mCardNumberRequired);
         setFieldVisibility(mCardNumber, mCardNumberRequired);
         setFieldVisibility(mExpiration, mExpirationRequired);
-        setFieldVisibility(mCvv, mCvvRequired);
+        setFieldVisibility(mCvv, cvvVisible);
         setViewVisibility(mPostalCodeIcon, mPostalCodeRequired);
         setFieldVisibility(mPostalCode, mPostalCodeRequired);
         setViewVisibility(mMobileNumberIcon, mMobileNumberRequired);
@@ -509,7 +519,7 @@ public class CardForm extends LinearLayout implements OnCardTypeChangedListener,
         if (mExpirationRequired) {
             valid = valid && mExpiration.isValid();
         }
-        if (mCvvRequired) {
+        if (mCvvRequiredStatus == FIELD_REQUIRED) {
             valid = valid && mCvv.isValid();
         }
         if (mPostalCodeRequired) {
@@ -534,7 +544,7 @@ public class CardForm extends LinearLayout implements OnCardTypeChangedListener,
         if (mExpirationRequired) {
             mExpiration.validate();
         }
-        if (mCvvRequired) {
+        if (mCvvRequiredStatus == FIELD_REQUIRED) {
             mCvv.validate();
         }
         if (mPostalCodeRequired) {
@@ -641,7 +651,7 @@ public class CardForm extends LinearLayout implements OnCardTypeChangedListener,
      * @param errorMessage the error message to display
      */
     public void setCvvError(String errorMessage) {
-        if (mCvvRequired) {
+        if (mCvvRequiredStatus == FIELD_REQUIRED) {
             mCvv.setError(errorMessage);
             if (!mCardNumber.isFocused() && !mExpiration.isFocused()) {
                 requestEditTextFocus(mCvv);
